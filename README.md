@@ -1,61 +1,43 @@
-# Gear – Combat UI
+# Gear (Flower Escape) – Combat UI
 
-Bộ UI màn chiến đấu chính của game **Gear**, tách riêng từ project gốc để dùng cho bài tập thiết kế UI trong game.
-Project chỉ chứa **UI** (sprite, font, prefab, animation). Toàn bộ logic gameplay đã được gỡ bỏ.
+Bài thực hành 4 – Tích hợp giao diện vào game engine.
 
-- Unity **2022.3.62f2** (Built-in Render Pipeline)
-- Mở scene: `Assets/CombatUI/CombatUI_Demo.unity`
-- Game view: chọn độ phân giải dọc **1080×1920**
+Tích hợp UI màn gameplay chính của game mobile xếp gear **Flower Escape** vào Unity, gồm 2 trạng thái **combat** và **xếp gear**, responsive với màn **9:21** và **3:4**.
 
-## Màn hình
+- Unity **2022.3.62f2**
+- Scene: `Assets/CombatUI/CombatUI_Demo.unity`
+- Xem bằng **Device Simulator** (Window → General → Device Simulator):
+  - 9:21: thiết bị `Phone 9x21 (1080x2520)` (file `Assets/CombatUI/Devices/Phone 9x21.device`)
+  - 3:4: `Apple iPad (5th generation)`
 
-![Tổng quan](Screenshots/overview.png)
+## Kết quả
 
-| HUD chiến đấu | Victory | Failed | Revive |
-|---|---|---|---|
-| ![](Screenshots/hud.png) | ![](Screenshots/popup_win.png) | ![](Screenshots/popup_lose.png) | ![](Screenshots/popup_revive.png) |
+| | Xếp gear | Combat |
+|---|---|---|
+| **9:21** (1080×2520) | ![](Screenshots/r921_buy.png) | ![](Screenshots/r921_battle.png) |
+| **3:4** (1536×2048) | ![](Screenshots/r34_buy.png) | ![](Screenshots/r34_battle.png) |
 
-| Unlock | Give up | Tutorial | Settings |
-|---|---|---|---|
-| ![](Screenshots/popup_unlock.png) | ![](Screenshots/popup_giveup.png) | ![](Screenshots/popup_tutorial.png) | ![](Screenshots/popup_settings.png) |
+## Cách làm
 
-## Thành phần
+- UI được lấy trực tiếp từ game lúc đang chạy (Stage 5), ở đúng 2 trạng thái: xếp gear và combat. Mọi thứ do code sinh ra lúc chạy, như lưới lá sen, gear, shop, booster, tiến trình level và popup, đều được giữ đúng vị trí.
+- Toàn bộ script gameplay đã được gỡ. Chỉ giữ component hiển thị: Image, TextMeshPro, Button, Layout, Canvas, `SlicedFilledImage`, `ImageWithRoundedCorners`.
+- UI world-space (thanh máu thuyền và quái, số damage) giữ nguyên tọa độ thế giới. Camera giống hệt game: ortho size 11, vị trí (0, 7.95, −9), góc 45°.
+- Nền cảnh biển là ảnh render thế giới game, không phải UI. Ảnh được đặt trong không gian thế giới, cao đúng khung camera và rộng đủ cho 3:4. Vì vậy màn hẹp chỉ bị cắt hai bên giống game thật, còn UI world-space luôn khớp vị trí.
 
-**HUD màn hình** (`Prefabs/UI Canvas.prefab`)
-- Thanh tiến trình level: quãng đường, mốc boss 💀, đích 🏁, nút Settings / Thoát
-- Tiền trong trận, nút nhận thưởng xem quảng cáo
-- Khay Gear: tốc độ thuyền, sát thương, 6 ô vũ khí
-- Shop Gear: 4 ô mua, nút Refresh và START!
-- Booster: Hồi máu, Sét (choáng), Lửa (đốt), Beam
-- Bộ đếm đạn, vùng banner quảng cáo
-- Popups: Win, Unlock Feature, Lose, Revive, Give Up, Tutorial, Warning, Settings
+## Responsive
 
-**UI world-space** (gắn trên thuyền/quái)
-- `BoatContainer_HealthBar`: máu thuyền + số HP
-- `BoatContainer_ShieldController`: khiên
-- `Enemy_HealthBar`, `Boss_HealthBar`: thanh máu quái / boss
-- `*_Status_Canvas`: icon trạng thái Độc / Choáng / Cháy
-- `PoolObject_DamageNumberFX_DamageText`: số damage bay lên
+- HUD dùng CanvasScaler tham chiếu **900×1600**.
+- `ResponsiveCanvasScaler` (`Assets/CombatUI/Scripts`) chọn cách scale theo tỉ lệ màn:
+  - Màn rộng như **3:4**: khớp theo chiều cao giống game gốc. Phần dư chiều ngang thành khoảng trống hai bên.
+  - Màn rất dài như **9:21**: nếu khớp theo chiều cao, bề ngang còn dưới 740 đơn vị và UI sẽ bị cắt hai bên. Script chỉ chuyển sang khớp chiều rộng vừa đủ để luôn giữ được 740 đơn vị bề ngang. Phần dư chiều cao nằm giữa thanh trên cùng và khay gear.
+- Các thành phần neo theo cạnh: thanh trên cùng neo trên, khay gear và shop neo dưới, cột booster neo phải.
 
-## Xem thử
+## Xem thử khi Play
 
-Bấm Play rồi dùng phím số để bật popup (script `UIPreviewSwitcher`, chỉ phục vụ việc xem):
-
-| Phím | Popup |
+| Phím | Chức năng |
 |---|---|
-| 0 | Ẩn hết |
-| 1 | Victory |
-| 2 | Unlock Feature |
-| 3 | Failed |
-| 4 | Revive |
-| 5 | Give Up |
-| 6 | Tutorial |
-| 7 | Warning |
-| 8 | Settings |
+| Tab | Đổi trạng thái xếp gear ↔ combat |
+| 1–8 | Bật popup: Victory, Unlock, Failed, Revive, Give Up, Tutorial, Warning, Settings |
+| 0 | Ẩn popup |
 
-Menu **Combat UI → Rebuild Demo Scene** dựng lại scene demo từ các prefab.
-
-## Ghi chú
-
-- Các script gameplay (GearManager, UIManager, Popup controllers, UIAutoAnimation…) đã được gỡ. Vì vậy nút bấm không chạy logic, và các hiệu ứng tween/animation do code điều khiển sẽ không chạy.
-- Các component hiển thị vẫn được giữ: Image, TextMeshPro, Button, Layout, Animator, `SlicedFilledImage`, `ImageWithRoundedCorners`.
+Menu **Combat UI → Rebuild Demo Scene** dựng lại scene từ các prefab.
