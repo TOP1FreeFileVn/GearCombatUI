@@ -25,3 +25,6 @@
 /[Uu]ser[Ss]ettings/
 .vs/
 .vscode/
+
+# local AI tooling (MCP for Unity), not part of the UI project
+/Packages/com.coplaydev.unity-mcp/
