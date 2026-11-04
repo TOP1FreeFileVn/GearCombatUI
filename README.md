@@ -9,6 +9,8 @@ Project chỉ chứa **UI** (sprite, font, prefab, animation). Toàn bộ logic 
 
 ## Màn hình
 
+![Tổng quan](Screenshots/overview.png)
+
 | HUD chiến đấu | Victory | Failed | Revive |
 |---|---|---|---|
 | ![](Screenshots/hud.png) | ![](Screenshots/popup_win.png) | ![](Screenshots/popup_lose.png) | ![](Screenshots/popup_revive.png) |
