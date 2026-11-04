@@ -32,7 +32,21 @@ Tích hợp UI màn gameplay chính của game mobile xếp gear **Flower Escape
   - Màn rất dài như **9:21**: nếu khớp theo chiều cao, bề ngang còn dưới 740 đơn vị và UI sẽ bị cắt hai bên. Script chỉ chuyển sang khớp chiều rộng vừa đủ để luôn giữ được 740 đơn vị bề ngang. Phần dư chiều cao nằm giữa thanh trên cùng và khay gear.
 - Các thành phần neo theo cạnh: thanh trên cùng neo trên, khay gear và shop neo dưới, cột booster neo phải.
 
-## Xem thử khi Play
+## Nút bấm (khi Play)
+
+Script `UIPreviewSwitcher` gắn hành động cho các nút. Đây là luồng UI, không có logic game:
+
+| Nút | Kết quả |
+|---|---|
+| **START!** | Hiện popup "No Flowers!": **Yes** vào trạng thái combat, **No** đóng popup |
+| ⚙ Settings | Mở Settings, nút **X** để đóng |
+| ✕ góc trên phải | Mở Give Up: **Resume** đóng popup, **Quit** về màn xếp gear |
+| Revive / No Thanks | Revive quay lại combat, No Thanks sang màn Failed |
+| Nút trong Victory / Failed | Về màn xếp gear |
+| Tutorial Next / Understood | Chuyển trang hướng dẫn / đóng |
+| Các nút còn lại | Có hiệu ứng nhún khi bấm |
+
+Phím tắt:
 
 | Phím | Chức năng |
 |---|---|
