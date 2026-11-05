@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Native, editable reconstruction of the two Level 12 layouts in the assignment.
-// Only the world backdrop and sample ad are raster crops; controls and gear stay separate.
+// Artwork is exported from the original Figma layers; controls, text and gear stay separate.
 public static class AssignmentUIBuilder
 {
     const string Art = "Assets/GearFinal/Assets/";
-    const string Ref = "Assets/CombatUI/ReferenceSprites/";
+    const string Ref = "Assets/CombatUI/FigmaSprites/";
     static TMP_FontAsset font;
     static readonly Color Ink = new Color32(44, 58, 83, 255);
 
@@ -30,10 +30,16 @@ public static class AssignmentUIBuilder
             ti.mipmapEnabled = false;
             ti.textureCompression = TextureImporterCompression.Uncompressed;
             ti.alphaIsTransparency = true;
-            ti.maxTextureSize = 2048;
+            ti.maxTextureSize = 4096;
+            ti.npotScale = TextureImporterNPOTScale.None;
+            var settings=new TextureImporterSettings();
+            ti.ReadTextureSettings(settings);settings.spriteMeshType=SpriteMeshType.FullRect;
+            ti.SetTextureSettings(settings);
+            ti.filterMode = FilterMode.Bilinear;
+            if (Path.GetFileName(path) == "BoardPanel.png") ti.spriteBorder = new Vector4(80,80,80,80);
             ti.SaveAndReimport();
         }
-        font = preview.states[0].hud.GetComponentsInChildren<TMP_Text>(true).First(t => t.font != null).font;
+        font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(Art+"Font/Lalezar-Regular SDF.asset");
         for (int i = 0; i < preview.states.Length; i++)
         {
             var st = preview.states[i];
@@ -61,11 +67,9 @@ public static class AssignmentUIBuilder
         Stretch(ui);
         var layout = hud.AddComponent<AssignmentResponsiveLayout>();
         layout.battle = battle;
-        layout.sea = Img("Sea", ui, Ref+"SeaReference.png", 0,0,740,1616).rectTransform;
-        layout.sea.GetComponent<Image>().sprite = null;
-        layout.sea.GetComponent<Image>().color = new Color32(22, 112, 151, 255);
-        layout.sky = Img("Sky", ui, Ref+"SkyReference.png",0,0,740,260).rectTransform;
-        layout.field = Img("Battlefield",ui,Ref+(battle?"BattlefieldReference.png":"BuyFieldReference.png"),0,260,740,595).rectTransform;
+        layout.sky = Img("Environment",ui,Ref+"Environment.png",0,0,1616,1616).rectTransform;
+        layout.field = Rect("Battlefield",ui);
+        if (battle) World(layout.field);
         layout.header = Rect("LevelProgressBar", ui);
         Header(layout.header, battle);
         layout.board = Rect("GearContainer", ui);
@@ -79,24 +83,73 @@ public static class AssignmentUIBuilder
         Img("Ads",layout.reward,Art+"Panel/icon video ad.png",166,-9,55,40);
         layout.banner = Rect("SampleBanner", ui);
         layout.banner.gameObject.AddComponent<Image>().color = Color.black;
-        var bannerImage=Img("ReferenceAd",layout.banner,Ref+"BannerReference.png",0,0,740,180);
-        Stretch(bannerImage.rectTransform);bannerImage.rectTransform.pivot=new Vector2(.5f,.5f);
-        bannerImage.preserveAspect=true;
+        // The Figma ad is itself an image fill from a supplied source screenshot.
+        // Preserve that full original and reproduce its Figma fill transform using UVs.
+        var bannerImage=Rect("FigmaAdImageFill",layout.banner).gameObject.AddComponent<RawImage>();
+        bannerImage.texture=AssetDatabase.LoadAssetAtPath<Texture2D>(Ref+"BannerSource.png");
+        bannerImage.uvRect=new Rect(.0053555f,0,.9917683f,1f/10.55f);
+        bannerImage.raycastTarget=false;
+        Stretch(bannerImage.rectTransform);
         // Popups remain above the native main screen and keep their existing close buttons.
         var popups = hud.transform.Find("Popups");
         if (popups) popups.SetAsLastSibling();
         layout.Refresh();
     }
 
+    static void World(RectTransform p)
+    {
+        const float S=740f/402f;
+        Img("Boat_3798_3828",p,Ref+"Boat.png",197.00000f*S,195.00000f*S,194.48315f*S,156.00000f*S);
+        Img("SceneMobFlying_3798_3870",p,Ref+"SceneMobFlying.png",71.12622f*S,130.98010f*S,39.74902f*S,27.01746f*S);
+        Img("SceneMobFlying_3798_3871",p,Ref+"SceneMobFlying.png",150.12622f*S,145.98010f*S,39.74902f*S,27.01746f*S);
+        Img("SceneMobMelee_3798_3872",p,Ref+"SceneMobMelee.png",110.00000f*S,352.09424f*S,39.65356f*S,33.90588f*S);
+        Img("SceneMobMelee_3798_3873",p,Ref+"SceneMobMelee.png",10.00000f*S,351.09424f*S,39.65356f*S,33.90588f*S);
+        Img("SceneMobMelee_3798_3874",p,Ref+"SceneMobMelee.png",160.00000f*S,257.09424f*S,39.65356f*S,33.90588f*S);
+        Img("SceneMobMelee_3798_3875",p,Ref+"SceneMobMelee.png",62.00000f*S,343.09424f*S,39.65356f*S,33.90588f*S);
+        Img("SceneMobMelee_3798_3876",p,Ref+"SceneMobMelee.png",141.00000f*S,308.09424f*S,39.65356f*S,33.90588f*S);
+        Img("SceneMobRange_3798_3877",p,Ref+"SceneMobRange.png",32.00000f*S,391.00000f*S,44.00000f*S,36.33240f*S);
+        Img("SceneMobRange_3798_3878",p,Ref+"SceneMobRange.png",109.00000f*S,228.00000f*S,44.00000f*S,36.33240f*S);
+        Img("SceneMobRange_3798_3879",p,Ref+"SceneMobRange.png",173.00000f*S,275.00000f*S,44.00000f*S,36.33240f*S);
+        Img("CharNerd_3798_3887",p,Ref+"CharNerd.png",280.45703f*S,266.45752f*S,28.08594f*S,40.23865f*S);
+        Img("CharEmo_3798_3888",p,Ref+"CharEmo.png",307.43506f*S,225.43469f*S,24.89209f*S,36.68884f*S);
+        Img("CharTomboy_3798_3889",p,Ref+"CharTomboy.png",337.43481f*S,231.43469f*S,29.70878f*S,43.91101f*S);
+        Img("SceneMobFast_3798_3897",p,Ref+"SceneMobFast.png",169.00000f*S,338.37329f*S,47.78345f*S,44.86536f*S);
+        Img("CharSexy_3798_3978",p,Ref+"CharSexy.png",311.77539f*S,272.77539f*S,34.44897f*S,37.37830f*S);
+        Img("Boss_3798_4013",p,Ref+"Boss.png",-49.54006f*S,215.00000f*S,200.40829f*S,123.32818f*S);
+        // Native HUD over the independently positioned world sprites.
+        void Health(float x,float y,float w,float fill,Color color)
+        {
+            Img("HealthBack",p,Art+"Panel/slider gameplay_background.png",x*S,y*S,w*S,8*S);
+            var bar=Img("HealthFill",p,Art+"Panel/white rec.png",(x+1)*S,(y+1)*S,(w-2)*fill*S,6*S);
+            bar.type=Image.Type.Sliced;bar.color=color;
+        }
+        var red=new Color32(245,71,111,255);
+        Health(16,196,97,.77f,red);Health(157,135,27,.85f,red);Health(165,245,27,.48f,red);Health(190,263,27,.93f,red);
+        Health(303,169,37,.78f,new Color32(0,221,93,255));
+        Label("BoatHealth",p,"120",305*S,165*S,30*S,12*S,13*S,Color.white);
+        Img("Shield",p,Ref+"StatusShield.png",314*S,142*S,16*S,16*S);
+        Label("ShieldValue",p,"89",309*S,152*S,24*S,12*S,13*S,Color.white);
+        Img("Poison",p,Ref+"StatusPoison.png",314*S,180*S,16*S,16*S);
+        Label("PoisonValue",p,"2",322*S,189*S,11*S,9*S,13*S,Color.white);
+        for(int i=0;i<4;i++)
+        {
+            var bg=Img("Ammo",p,Art+"UI/bg_grey.png",360*S,(306+i*28)*S,53*S,22*S);
+            bg.color=new Color32(32,100,147,255);
+            string[] bullets={Ref+"BulletPumpkin.png",Ref+"BulletChili.png",Art+"Weapon/bullet_berry.png",Art+"Weapon/bullet_pea.png"};
+            Img("Bullet",p,bullets[i],366*S,(310+i*28)*S,12*S,12*S);
+            Label("AmmoCount",p,new[]{"2","0","5","13"}[i],380*S,(307+i*28)*S,22*S,20*S,13*S,Color.white);
+        }
+    }
+
     static void Header(RectTransform p, bool battle)
     {
-        Label("LevelTitle",p,"Level12",255,72,230,44,29,Color.white);
+        Label("LevelTitle",p,"Level12",255,72,230,44,33,Color.white);
         Button("SettingsBtn",p,Art+"Panel/Setting.png",17,127,55,63);
         Button("BackBtn",p,Art+"Panel/closeBtn.png",672,128,55,58);
         Img("ProgressBack",p,Art+"Panel/slider gameplay_background.png",108,148,515,20);
         Img("ProgressFill",p,Art+"Panel/slider gameplay_fill_cyan.png",111,152,214,12);
-        foreach (float x in new float[] {202,310,525}) Img("Skull",p,Art+"Icon/stage.png",x,119,28,49);
-        Img("Finish",p,Art+"Icon/icon_flag finish.png",614,122,25,35);
+        foreach (float x in new float[] {202,310,525}) Img("Skull",p,Ref+"Skull.png",x,119,24,28);
+        Img("Finish",p,Ref+"Flag.png",614,122,25,35);
         Img("Distance",p,Art+"Panel/distance pointer.png",254,163,84,34);
         Label("distanceText",p,"123m",255,168,82,23,19,Color.white);
         var hard = Img("Hard",p,Art+"UI/bg_grey.png",315,214,99,32);
@@ -106,14 +159,14 @@ public static class AssignmentUIBuilder
         coin.color = new Color32(43,64,91,255);
         Img("Sun",p,Art+"Icon/icon_sun.png",9,202,52,53);
         Label("textCoin",p,"165",65,208,73,47,28,new Color32(255,220,43,255),false);
-        var x2 = Button("SpeedBtn",p,Art+"Panel/button_booster.png",673,204,53,53);
+        var x2 = Button("SpeedBtn",p,Ref+"Speed.png",673,204,53,53);
         Label("Text",x2.transform,"x2",2,5,49,38,25,Color.white);
     }
 
     static void Board(RectTransform p, bool battle)
     {
         float w = battle ? 570 : 698;
-        var panel = Img("Panel",p,Art+"Panel/panel_rec_lightgreen.png",0,0,w,700);
+        var panel = Img("Panel",p,Ref+"BoardPanel.png",0,0,w,700);
         Stretch(panel.rectTransform);
         panel.type = Image.Type.Sliced;
         panel.pixelsPerUnitMultiplier = 2.8f;
@@ -124,6 +177,9 @@ public static class AssignmentUIBuilder
         contents.anchoredPosition=new Vector2(0,0);
         contents.sizeDelta=new Vector2(698,700);
         contents.localScale=Vector3.one*(w/698);
+        var section=Img("EquipmentBackground",contents,Art+"Panel/white rec.png",18,18,662,225);
+        section.type=Image.Type.Sliced;section.pixelsPerUnitMultiplier=3;
+        section.color=new Color32(108,168,137,255);
         var speed=Img("StatSpeed",contents,Art+"Panel/white rec.png",37,26,310,50);
         speed.type=Image.Type.Sliced;speed.pixelsPerUnitMultiplier=4;
         speed.color=battle?new Color32(173,58,43,255):new Color32(42,60,94,255);
@@ -143,14 +199,27 @@ public static class AssignmentUIBuilder
         for(int i=0;i<6;i++)
         {
             float x=37+i*106;
-            Img("WeaponSlot"+i,contents,Ref+"WeaponSlotInactive.png",x,85,95,137);
+            Img("WeaponSlot"+i,contents,Ref+"WeaponSlotDisabled.png",x,85,95,137);
             if(weapons[i]!=null)
             {
-                Img("WeaponSlot"+i,contents,i<2?Ref+"WeaponSlotConnected.png":Art+"Slot gear - Empty.png",x,85,95,137);
+                Img("WeaponSlot"+i,contents,i<2?Ref+"WeaponSlotActive.png":Ref+"WeaponSlotEmpty.png",x,85,95,137);
                 Img("Weapon",contents,Art+"Weapon/"+weapons[i],x+4,98,85,92).preserveAspect=true;
                 if(i<3) Label("Rate",contents,i==0?"0.24/s":(i==1?"1.17/s":""),x,176,93,24,20,Color.white);
             }
-            Img("Connected",contents,i<2?Ref+"GearConnectorActive.png":Art+"Gear/Gear connected.png",x+18,197,60,60);
+            if(weapons[i]!=null)
+                Img("Connected",contents,i<2?Ref+"ConnectorHighlight.png":Ref+"Connector.png",x+18,197,60,60);
+        }
+        if(battle)
+        {
+            for(int i=1;i<=2;i++)
+            {
+                float x=37+i*106+8;
+                var buff=Img("WeaponBuff",contents,Art+"Panel/white rec.png",x,77,77,32);
+                buff.type=Image.Type.Sliced;buff.pixelsPerUnitMultiplier=5;
+                buff.color=new Color32(42,60,94,179);
+                Img("Bullet",contents,Art+"Weapon/"+(i==1?"bullet_pea.png":"bullet_berry.png"),x+4,80,27,27);
+                Label("BuffValue",contents,i==1?"+1":"+2",x+28,78,47,28,22,Color.white);
+            }
         }
         var pads=Rect("Grid",contents);
         // Measured independently in the two PPT screenshots, then normalized to a 698-wide board.
@@ -163,17 +232,35 @@ public static class AssignmentUIBuilder
         }
         void Flower(string name,int c,int r)
         {
-            float gw=battle?113:112,gh=battle?116:115;
-            if(name=="GearPurple1"){gw=battle?110:107;gh=battle?113:112;}
-            if(name=="GearOrange2" && !battle){gw=109;gh=112;}
-            if(name=="GearRed8" && !battle)gh=112;
-            Cell(name,Ref+name+".png",c,r,gw,gh,battle?5:0,battle?-15:-3);
+            string body="GearWeapon";
+            string number=null,icon=null;
+            switch(name)
+            {
+                case "GearOrange2":body="Gear2";number="2";break;
+                case "GearRed8":body="Gear8";number="8";break;
+                case "GearCyan4":body="Gear4";number="4";break;
+                case "GearPurple1":body="Gear1";number="1";break;
+                case "GearPinkSmile":icon="HeartBoom";break;
+                case "GearPinkPotato":icon=battle?"PeanutDrone2":"SunbloomBurst";break;
+                case "GearDamage":body="GearStats";icon="FlowerCritDmg";break;
+                case "GearSunPlus":body="GearEarning";icon=battle?"FlowerExtraGold":"FlowerRegeneration";break;
+                case "GearShield":body="GearStats";icon="FlowerShield";break;
+            }
+            float g=battle?113:112,dx=battle?5:0,dy=battle?-15:-3;
+            Cell(name,Ref+body+"_Full.png",c,r,g,g,dx,dy);
+            if(number!=null)
+                Label("Number",pads,number,c*pitchX+46.5f-g*.5f+dx,r*pitchY+46.5f-g*.5f+dy,g,g,65,Color.white);
+            if(icon!=null)
+            {
+                float iw=icon=="PeanutDrone2"?79:icon=="HeartBoom"?79:84;
+                Cell("Icon_"+icon,Ref+icon+"_Full.png",c,r,iw,iw,dx,dy);
+            }
         }
         // Inactive pad is the lighter green leaf, including empty cells behind gears.
         for(int r=0;r<4;r++)for(int c=0;c<6;c++)
         {
             bool active=(r==0&&c==2)||(r==1&&c==1)||(r==2&&c<3);
-            var leaf=Cell("Pad_"+r+"_"+c,Art+"Gear/"+(active?"pad-red.png":"pad.png"),c,r);
+            var leaf=Cell("Pad_"+r+"_"+c,Ref+(active?"PadEnabled.png":"Pad.png"),c,r);
             leaf.rectTransform.pivot = new Vector2(.5f,.5f);
             leaf.rectTransform.anchoredPosition += new Vector2(46.5f,-46.5f);
             leaf.rectTransform.localEulerAngles=new Vector3(0,0,(r*83+c*47)%360);
@@ -181,39 +268,47 @@ public static class AssignmentUIBuilder
         Flower("GearOrange2",0,0); Flower("GearRed8",1,0); Flower(battle?"GearPinkPotato":"GearPinkSmile",4,0);
         Flower("GearCyan4",0,1); Flower("GearPurple1",2,1); Flower("GearCyan4",3,1); Flower("GearPurple1",4,1);
         // The rotor body occupies only 164/232 of its source texture, so its rect must be larger.
-        var wheel=Cell("Rotor",Art+"Gear/Gear Rotor.png",1,1,136,136,0,battle?-1.6f:5.3f);
+        var wheel=Cell("Rotor",Ref+"GearRotor_Full.png",1,1,136,136,0,battle?-1.6f:5.3f);
         wheel.rectTransform.pivot = new Vector2(.5f,.5f);
         wheel.rectTransform.anchoredPosition += new Vector2(68,-68);
         wheel.rectTransform.localEulerAngles=new Vector3(0,0,-135);
         Flower("GearSunPlus",0,3);
         if (battle)
         {
-            Flower("GearDamage",0,2); Flower("GearShield",2,3);
-            Flower("GearCyan4",3,2);
-            Cell("Shield",Ref+"ShieldIcon.png",3,2,43,43,5,-15);
-            Cell("WeaponFlower",Art+"Gear/Gear - Weapon.png",3,3,113,116,5,-15);
-            Cell("CombatPlant",Ref+"CombatPlantGear.png",3,0,113,116,5,-15);
-            Cell("CombatWeapon",Ref+"CombatWeaponGear.png",4,2,113,116,5,-15);
-            Cell("CombatStone",Ref+"CombatStoneGear.png",5,3,107,111,5,-15);
+            Flower("GearDamage",0,2);
+            Flower("GearOrange2",3,2);
+            var freeze=Rect("PartialFrozen",pads);Pos(freeze,3*pitchX-5,2*pitchY+39,113,57);
+            freeze.gameObject.AddComponent<RectMask2D>();
+            Img("Ice",freeze,Ref+"GearFrozen_Full.png",0,-56,113,113);
+            Cell("MultiplierGear",Ref+"GearMultiplier.png",2,3,113,113,5,-15);
+            Cell("MultiplierIcon",Ref+"MultiplierIcon.png",2,3,87,47,5,-15);
+            Cell("FrozenMultiplier",Ref+"GearFrozen_Full.png",2,3,113,113,5,-15);
+            Cell("WeaponFlower",Ref+"GearWeapon_Full.png",3,3,113,113,5,-15);
+            Cell("CombatPlant",Ref+"GearSpider_Full.png",3,0,113,113,5,-15);
+            Cell("CombatWeaponGear",Ref+"Gear2_Full.png",4,2,113,113,5,-15);
+            Label("Number",pads,"1",4*pitchX-5,2*pitchY-25,113,113,65,Color.white);
+            Cell("CombatWeapon",Ref+"GearAd_Full.png",4,2,113,113,5,-15);
+            Cell("CombatStone",Ref+"StonePhase1_Full.png",5,3,107,107,5,-15);
         }
         else
         {
             Flower("GearOrange2",3,2); Flower("GearPurple1",4,2); Flower("GearPinkPotato",3,3);
-            Cell("BlueFlower",Art+"Gear/Gear - Stats.png",5,3,112,115,0,-3);
-            Cell("Plus",Ref+"GreenPlus.png",5,3,46,49,0,-3);
+            Cell("BlueFlower",Ref+"GearStats_Full.png",5,3,112,112,0,-3);
+            Cell("Luck",Ref+"FlowerLuck_Full.png",5,3,84,84,0,-3);
         }
     }
 
     static void Shop(RectTransform p)
     {
-        var bg=Img("Panel",p,Art+"Panel/bar bottom buy gear.png",0,0,740,364);
+        var bg=Img("Panel",p,Ref+"BuyBar.png",0,0,740,364);
         Stretch(bg.rectTransform);
         for(int i=0;i<4;i++)
         {
             float x=29+i*177;
-            Img("Offer"+i,p,Art+"Panel/button_buy gear.png",x,43,148,150);
+            Img("Offer"+i,p,Ref+"ButtonBuy.png",x,43,148,150);
             if(i==3)continue;
-            Img("Gear",p,Ref+new[]{"GearPurple1.png","GearOrange2.png","GearCyan4.png"}[i],x+24,64,105,105);
+            Img("Gear",p,Ref+new[]{"Gear1_Full.png","Gear2_Full.png","Gear4_Full.png"}[i],x+24,64,105,105);
+            Label("Number",p,new[]{"1","2","4"}[i],x+24,64,105,105,61,Color.white);
             var price=Img("Price",p,Art+"UI/bg_grey.png",x+19,151,112,39);
             price.color=new Color32(67,70,101,210);
             Img("Sun",p,Art+"Icon/icon_sun.png",x+24,153,29,29);
@@ -227,11 +322,11 @@ public static class AssignmentUIBuilder
         var strip=Img("ButtonStrip",p,Art+"Panel/white rec.png",27,212,686,136);
         strip.type=Image.Type.Sliced;
         strip.color=new Color32(109,73,182,255);
-        var refresh=Button("RefreshBtn",p,Art+"Panel/button_big_green.png",113,233,185,99);
+        var refresh=Button("RefreshBtn",p,Ref+"ButtonGreen.png",113,233,185,99);
         Label("Label",refresh.transform,"Refresh",4,5,177,43,28,Color.white);
         Img("Sun",refresh.transform,Art+"Icon/icon_sun.png",60,50,33,34);
         Label("Price",refresh.transform,"5",91,48,42,37,29,Color.white);
-        var start=Button("StartGameBtn",p,Art+"Panel/btn_blue.png",314,233,318,99);
+        var start=Button("StartGameBtn",p,Ref+"ButtonBigCyan.png",314,233,318,99);
         Label("Label",start.transform,"START!",0,8,318,79,40,Color.white);
     }
 
@@ -240,7 +335,7 @@ public static class AssignmentUIBuilder
         for(int i=0;i<4;i++)
         {
             float y=i*135;
-            var b=Button("Booster"+i,p,Art+"Panel/button_booster.png",0,y,112,112);
+            var b=Button("Booster"+i,p,Ref+"BoosterFrame.png",0,y,112,112);
             if(i==0) Img("Heart",b.transform,Art+"Icon/icon_heart.png",23,21,68,63);
             var badge=Img("Count",b.transform,Art+"Panel/dot_green.png",79,77,41,41);
             Label("countText",badge.transform,"3",0,0,41,39,30,Color.white);
@@ -306,6 +401,13 @@ public static class AssignmentUIBuilder
         // Reload to discard temporary rendering settings without modifying the saved scene.
         EditorSceneManager.OpenScene("Assets/CombatUI/CombatUI_Demo.unity");
         Debug.Log("ASSIGNMENT_FULL_SCREEN_CAPTURE_COMPLETE");
+    }
+
+    public static void VerifyAndCapture()
+    {
+        CombatUIDemoBuilder.Build();
+        CaptureFullScreens();
+        Debug.Log("ASSIGNMENT_UI_VERIFY_COMPLETE");
     }
 
     public static void Verify()

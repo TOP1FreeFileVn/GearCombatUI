@@ -26,6 +26,8 @@ Combat bên trái, xếp gear bên phải. Hai ảnh giữ nguyên toàn bộ kh
 
 Menu **Combat UI → Capture Full Screens** chụp lại các ảnh riêng từ scene đã lưu.
 
-Các khung, chữ, nút và gear là thành phần Unity UI riêng. Sprite gear dùng asset có sẵn, một số được tách từ ảnh tutorial. Cảnh boss và banner quảng cáo mẫu dùng crop từ PowerPoint vì project không có asset cảnh Level12 tương ứng; đây là ảnh tham khảo tĩnh và có độ phân giải theo tài liệu gốc. Nguồn và tọa độ crop ở `Assets/CombatUI/ReferenceSprites/sources.json`.
+Các khung, chữ, nút, gear, tàu, nhân vật và quái là những thành phần Unity riêng. Asset đã tải trực tiếp từ bản Figma có quyền truy cập, giữ SVG gốc và render vector ở 4× cho sprite Unity. Các số trên gear là chữ TMP riêng. Ảnh cắt từ slide/tutorial trước đây đã được thay và xóa khỏi ReferenceSprites.
+
+Nguồn, node ID, kích thước và SHA256 ở Assets/CombatUI/FigmaSprites/sources.json; cách xuất ở SOURCES.md. Riêng banner quảng cáo trong Figma vốn là image fill của ảnh chụp: project giữ toàn bộ BannerSource.png và dùng UV theo đúng fill transform của Figma. Asset raster gốc của băng, đá và đậu cũng được giữ.
 
 Các prefab snapshot Stage5 và popup cũ được giữ lại để tiếp tục chỉnh sửa. Bài này minh họa UI, chưa triển khai gameplay, mua gear hay quảng cáo thật.

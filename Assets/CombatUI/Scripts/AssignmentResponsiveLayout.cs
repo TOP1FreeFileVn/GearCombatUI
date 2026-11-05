@@ -61,10 +61,8 @@ public class AssignmentResponsiveLayout : MonoBehaviour
         float boardHeight = 687f * boardWidth / 698f;
         float boardBottom = height * (battle ? 0.871f : 0.663f);
         float boardTop = boardBottom - boardHeight;
-        Place(sky, 0f, 0f, size.x, height * 0.16f);
-        Place(sea, 0f, 0f, size.x, height);
-        Place(field, centerLeft, height * 0.157f, DesignWidth,
-            boardTop - height * 0.157f);
+        Place(sky, (size.x-height)*.5f, 0f, height, height);
+        Place(field, centerLeft, 0f, DesignWidth, 1616f);
         Place(header, centerLeft, 0f, DesignWidth, height * 0.17f);
 
         Place(board, centerLeft + (battle ? 19f : 21f), boardTop, boardWidth, boardHeight);
@@ -73,9 +71,12 @@ public class AssignmentResponsiveLayout : MonoBehaviour
         Place(shop, centerLeft, height * 0.663f, DesignWidth, height * (0.89f - 0.663f));
 
         Place(banner, 0f, height * 0.89f, size.x, height * 0.11f);
-        if (banner)
-            foreach (var content in banner.GetComponentsInChildren<Image>(true))
-                if (!content.preserveAspect) content.preserveAspect = true;
+        if (banner && banner.childCount > 0)
+        {
+            float adHeight=height*.11f;
+            float adWidth=Mathf.Min(size.x,adHeight*402f/96f);
+            Place(banner.GetChild(0) as RectTransform,(size.x-adWidth)*.5f,0f,adWidth,adHeight);
+        }
 
         SetVisible(boosters, battle);
         Place(boosters, centerLeft + 614f, height * 0.56f, 114f, height * (0.872f - 0.56f));
