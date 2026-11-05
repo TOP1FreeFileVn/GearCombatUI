@@ -102,6 +102,8 @@ public static class CombatUIDemoBuilder
         preview.ShowState(0);
         preview.ShowPopup(-1);
 
+        AssignmentUIBuilder.Apply(preview);
+
         EditorSceneManager.SaveScene(scene, ScenePath);
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;

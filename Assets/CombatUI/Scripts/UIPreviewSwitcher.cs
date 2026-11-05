@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 // UI-only flow controller for the combat screen (no game logic).
 // Buttons are wired at runtime by their path inside the HUD:
-//   START -> "No Flowers!" warning -> Yes: combat state, No: close
+//   START -> combat state; warning popup remains available with key 7.
 //   Settings -> Settings popup (X closes) ; top-right X -> Give Up (Resume / Quit -> gear state)
 //   Revive -> back to combat, No Thanks -> Failed ; Victory/Failed buttons -> gear state
 //   Tutorial Next/Understood pages ; other buttons give a press "punch" feedback.
@@ -58,7 +58,7 @@ public class UIPreviewSwitcher : MonoBehaviour
             b.onClick.AddListener(() => StartCoroutine(Punch(btn.transform)));
         }
 
-        On(hud, "GearHandle/ShopContainer/ButtonContainer/StartGameBtn", () => ShowPopup(Warning));
+        On(hud, "GearHandle/ShopContainer/ButtonContainer/StartGameBtn", () => { ShowPopup(-1); ShowState(BattleState); });
         On(hud, "Popups/PopupWarming/Content/ButtonContainer/ButtonYes", () => { ShowPopup(-1); ShowState(BattleState); });
         On(hud, "Popups/PopupWarming/Content/ButtonContainer/ButtonNo", () => ShowPopup(-1));
 
@@ -84,6 +84,9 @@ public class UIPreviewSwitcher : MonoBehaviour
     static void On(Transform hud, string path, UnityEngine.Events.UnityAction action)
     {
         var t = hud.Find(path);
+        if (!t && path == "GearHandle/ShopContainer/ButtonContainer/StartGameBtn")
+            t = hud.Find("ReferenceUI/ShopContainer/StartGameBtn");
+        if (!t) t = hud.Find("ReferenceUI/" + path);
         var b = t ? t.GetComponent<Button>() : null;
         if (b != null) b.onClick.AddListener(action);
         else Debug.LogWarning("[UIPreview] button not found: " + path);
